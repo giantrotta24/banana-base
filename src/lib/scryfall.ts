@@ -11,11 +11,28 @@ export interface ScryfallCard {
   mana_cost?: string;
   type_line?: string;
   oracle_text?: string;
+  legalities: Record<string, string>;
+  power?: string;
+  toughness?: string;
+  flavor_text?: string;
+  prices?: {
+    usd?: string | null;
+    usd_foil?: string | null;
+  };
+  released_at: string;
+  set: string;
+  rarity: string;
 }
 
 interface AutocompleteResponse {
   data: string[];
   total_values: number;
+}
+
+interface ScryfallSearchResponse {
+  data: ScryfallCard[];
+  total_cards: number;
+  has_more: boolean;
 }
 
 export async function searchCardAutocomplete(query: string): Promise<string[]> {
@@ -53,5 +70,24 @@ export async function getCardByName(
   } catch (error) {
     console.error("Card fetch error:", error);
     return null;
+  }
+}
+
+export async function getCardPrintings(
+  cardName: string,
+): Promise<ScryfallCard[]> {
+  try {
+    const response = await fetch(
+      `https://api.scryfall.com/cards/search?q=!"${encodeURIComponent(cardName)}"&unique=prints`,
+      { headers: { "Content-Type": "application/json" } },
+    );
+
+    if (!response.ok) throw new Error("Printings not found");
+
+    const data = (await response.json()) as ScryfallSearchResponse;
+    return data.data;
+  } catch (error) {
+    console.error("Printings fetch error:", error);
+    return [];
   }
 }
