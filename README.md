@@ -7,6 +7,18 @@ A modern web application for Magic: The Gathering card search and collection man
 - 🔐 Secure Discord authentication
 - 🔍 Real-time card search with autocomplete
 - 🖼️ High-quality card image display
+- 💰 Card pricing from multiple sources
+- 📊 Detailed card information including:
+  - Multiple printings and sets
+  - Format legality
+  - Oracle text and flavor text
+  - Market prices for regular and foil versions
+- 📝 Personal inventory management:
+  - Track multiple copies of cards
+  - Specify card condition (NM, LP, MP, HP, DMG)
+  - Track foil and non-foil versions
+  - Add personal notes to cards
+  - Select specific printings from different sets
 - 🎨 Beautiful, responsive UI with Tailwind CSS
 - 🚀 Built on the T3 Stack for type-safe development
 
@@ -30,31 +42,45 @@ cd banana-base
 pnpm install
 ```
 
-3. Set up your environment variables:
+3. Set up your PostgreSQL database:
+   - Install PostgreSQL if you haven't already
+   - Create a new database:
+   ```sql
+   createdb banana-base
+   ```
+
+4. Set up your environment variables:
 ```bash
 cp .env.example .env
 ```
 
-4. Update the `.env` file with your credentials:
+5. Update the `.env` file with your credentials:
 ```env
-# Discord OAuth
+# Database URL (update with your PostgreSQL credentials)
+DATABASE_URL="postgresql://username:password@localhost:5432/banana-base"
+
+# Discord OAuth (get these from Discord Developer Portal)
 AUTH_DISCORD_ID="your-discord-client-id"
 AUTH_DISCORD_SECRET="your-discord-client-secret"
 
-# Database URL
-DATABASE_URL="postgresql://user:password@localhost:5432/banana-base"
-
 # Next Auth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-nextauth-secret"
+# Generate a secret with: openssl rand -base64 32
+AUTH_SECRET="your-generated-secret"
 ```
 
-5. Initialize the database:
+6. Set up your Discord application:
+   - Go to the [Discord Developer Portal](https://discord.com/developers/applications)
+   - Create a new application
+   - Go to OAuth2 settings
+   - Add redirect URI: `http://localhost:3000/api/auth/callback/discord`
+   - Copy the Client ID and Client Secret to your `.env` file
+
+7. Initialize the database:
 ```bash
 pnpm db:push
 ```
 
-6. Start the development server:
+8. Start the development server:
 ```bash
 pnpm dev
 ```
@@ -68,6 +94,16 @@ Visit [http://localhost:3000](http://localhost:3000) to see your application run
 - `pnpm start` - Start the production server
 - `pnpm lint` - Run ESLint
 - `pnpm format` - Format code with Prettier
+- `pnpm db:push` - Push database schema changes
+- `pnpm db:studio` - Open Prisma Studio to view/edit database
+
+## Database Schema
+
+The application uses the following main models:
+- `User` - User accounts and authentication
+- `Card` - Card information from Scryfall
+- `InventoryItem` - User's card inventory with condition and quantity
+- `Deck` - User's deck lists (coming soon)
 
 ## Tech Stack
 
@@ -78,6 +114,7 @@ Visit [http://localhost:3000](http://localhost:3000) to see your application run
 - [Prisma](https://www.prisma.io/) - Database ORM
 - [tRPC](https://trpc.io/) - End-to-end typesafe APIs
 - [Scryfall API](https://scryfall.com/docs/api) - Magic: The Gathering card data
+- [PostgreSQL](https://www.postgresql.org/) - Database
 
 ## Contributing
 
