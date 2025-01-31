@@ -6,10 +6,18 @@ export async function Nav() {
 
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between bg-yellow-400/90 px-4 py-3 backdrop-blur-sm">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         <Link href="/" className="text-2xl font-bold text-yellow-900">
           🍌 Banana Base
         </Link>
+        {session && (
+          <Link
+            href="/inventory"
+            className="rounded-full bg-yellow-500/50 px-4 py-2 text-sm font-semibold text-yellow-950 transition hover:bg-yellow-500"
+          >
+            🗃️ My Inventory
+          </Link>
+        )}
       </div>
 
       <div className="flex items-center gap-4">

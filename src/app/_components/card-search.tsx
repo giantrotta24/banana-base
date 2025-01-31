@@ -10,8 +10,12 @@ import {
 import Image from "next/image";
 import type { ChangeEvent } from "react";
 import type { ScryfallCard } from "~/lib/scryfall";
+import { useSession } from "next-auth/react";
+import { api } from "~/trpc/react";
+import { AddToInventoryModal } from "./add-to-inventory-modal";
 
 export function CardSearch() {
+  const { data: session } = useSession();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedCard, setSelectedCard] = useState<ScryfallCard | null>(null);
@@ -20,6 +24,16 @@ export function CardSearch() {
   const [selectedPrinting, setSelectedPrinting] = useState<ScryfallCard | null>(
     null,
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const addToInventory = api.inventory.addCard.useMutation({
+    onSuccess: () => {
+      alert("Card added to inventory!");
+    },
+    onError: (error) => {
+      alert(`Error adding card: ${error.message}`);
+    },
+  });
 
   // Handle autocomplete
   useEffect(() => {
@@ -192,13 +206,26 @@ export function CardSearch() {
 
             {/* Right column - Card details */}
             <div className="flex flex-col space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-yellow-900">
-                  {selectedCard.name}
-                </h2>
-                <p className="mt-1 text-sm text-yellow-700">
-                  {selectedCard.type_line}
-                </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-yellow-900">
+                    {selectedCard.name}
+                  </h2>
+                  <p className="mt-1 text-sm text-yellow-700">
+                    {selectedCard.type_line}
+                  </p>
+                </div>
+                {session && (
+                  <button
+                    onClick={() => {
+                      if (!selectedPrinting) return;
+                      setIsModalOpen(true);
+                    }}
+                    className="rounded-lg bg-green-500 px-4 py-2 font-semibold text-white transition-colors hover:bg-green-600"
+                  >
+                    Add to Inventory
+                  </button>
+                )}
               </div>
 
               {/* Set information */}
@@ -276,6 +303,15 @@ export function CardSearch() {
             &ldquo;Sol Ring&rdquo;)
           </p>
         </div>
+      )}
+
+      {selectedPrinting && (
+        <AddToInventoryModal
+          card={selectedPrinting}
+          printings={printings}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </div>
   );
